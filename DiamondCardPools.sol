@@ -223,16 +223,24 @@ contract DiamondCardPools is Ownable, ERC1155Holder {
         emit EmergencyWithdraw(msg.sender, ids, values);
     }
 
+    //获取支持质押的资产ID
     function getSupportIds() public view returns(uint256[] memory){
         return supportIds;
     }
 
+    //获取质押资产列表
     function getUserDepositList(address _user) external view returns(uint256[] memory _ids, uint256[] memory _values){
         _ids = getSupportIds();
         _values = new uint256[](_ids.length);
         for(uint256 i = 0; i < _ids.length; i++){
             _values[i] = userDepositCard[_ids[i]][_user];
         }
+    }
+
+    //获取全网总收益
+    function pendingAllRewards() view external returns(uint256){
+        uint256 _pendingAccRewardPerShare = pendingAccRewardPerShare();
+        return _pendingAccRewardPerShare.mul(totalAmount).sub(totalRewardDebt).add(totalRewardRemain);
     }
 
     receive() external payable {
