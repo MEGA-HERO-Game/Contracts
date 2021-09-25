@@ -35,7 +35,41 @@ contract DiamondCard is ERC1155Supply, Ownable {
     event MaxSupply(uint256 _supply, uint256 indexed _id);
     event Buy(address indexed _user, address _invitation, uint256 _id, uint256 _amount, uint256 _usdt);
 
-	constructor(IERC20 _usdt, address _platform, address _pool, uint256 _platformRate, uint256 _poolRate, address _rootSigner) ERC1155("") {
+
+    address public operator;
+    uint256 public mintLimit;
+    
+    uint256 public currentEpoch;
+    uint256 public currentEpochMinted;
+
+    modifier _onlyOperator() {
+        require(operator == _msgSender(), "Operator: caller is not the operator");
+        _;
+    }
+
+    modifier _mintLimit(uint256[] memory _ids, uint256[] memory _amounts) {
+
+        uint256 _totalValue = 0;
+        for(uint256 i = 0; i < _ids.length; i++){
+            require(_exists(_ids[i]), "Err: Invalid ID");
+            require(idToMaxSupply[_ids[i]] >= totalSupply(_ids[i]).add(_amounts[i]), "Err: Exceeding maximum supply");
+            _totalValue = _totalValue + idToPrice[_ids[i]] * _amounts[i];
+        }
+
+        if(_totalValue > 0){
+            uint256 epoch = block.number / 28800;
+            if(currentEpoch != epoch){
+                currentEpoch = epoch;
+                currentEpochMinted = 0;
+            }
+            currentEpochMinted = currentEpochMinted + _totalValue;
+            require(currentEpochMinted <= mintLimit, "Err: The Diamond casting quota has been used up");
+        }
+        _;
+    }
+
+
+    constructor(IERC20 _usdt, address _platform, address _pool, uint256 _platformRate, uint256 _poolRate, address _rootSigner) ERC1155("") {
         usdt = _usdt;
         platform = _platform;
         pool = _pool;
@@ -47,12 +81,8 @@ contract DiamondCard is ERC1155Supply, Ownable {
         invitationRate = totalRate.sub(platformRate).sub(poolRate);
     }
 
-    /**
-     * @dev Creates a new NFT type
-     * @param _uri Content identifier
-     * @param _price Unit price of NFT
-     * @param _id  newly created token ID
-     */
+
+    //创建NFT类型
     function create(uint256 _id, uint256 _price, uint256 _maxSupply, string calldata _uri) external onlyOwner {
     	require(!_exists(_id), "Err: ID already exists");
         require(bytes(_uri).length > 0, "Err: Missing Content Identifier");
@@ -69,15 +99,22 @@ contract DiamondCard is ERC1155Supply, Ownable {
         emit URI(_uri, _id);
     }
 
+    //operator合约发行NFT
+    function operatorMint(address _account, uint256[] memory _ids, uint256[] memory _amounts) external _onlyOperator _mintLimit(_ids, _amounts)  {
+        _mintBatch(_account, _ids, _amounts, "");
+    }
 
+    //管理员发行NFT
     function mint(address _account, uint256 _id, uint256 _amount) external onlyOwner {
         require(_exists(_id), "Err: Invalid ID");
         require(idToMaxSupply[_id] >= totalSupply(_id).add(_amount), "Err: Exceeding maximum supply");
         _mint(_account, _id, _amount, "");
     }
 
+    //用户购买NFT
     function buy(uint256 _id, uint256 _amount, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
-
+        
+        require(_exists(_id), "Err: Invalid ID");
         require(idToPrice[_id] > 0, "Err: Can't buy");
         require(idToMaxSupply[_id] >= totalSupply(_id).add(_amount), "Err: Exceeding maximum supply");
 
@@ -161,8 +198,19 @@ contract DiamondCard is ERC1155Supply, Ownable {
         emit MaxSupply(_maxSupply, _id);
     }
 
+    function setOperator(address _operator) external onlyOwner {
+        operator = _operator;
+    }
 
-    function getNumber() external view returns(uint256){
-        return block.number;
+    function setLimit(uint256 _limit) external onlyOwner {
+        mintLimit = _limit;
+    }
+
+    function burn(uint256 _id, uint256 _amount) external {
+        _burn(msg.sender, _id, _amount);
+    }
+
+    function burnBatch(uint256[] memory _ids, uint256[] memory _amounts) external {
+        _burnBatch(msg.sender, _ids, _amounts);
     }
 }
