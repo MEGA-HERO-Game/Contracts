@@ -34,6 +34,7 @@ contract DiamondCard is ERC1155Supply, Ownable {
     event Price(uint256 _price, uint256 indexed _id);
     event MaxSupply(uint256 _supply, uint256 indexed _id);
     event Buy(address indexed _user, address _invitation, uint256 _id, uint256 _amount, uint256 _usdt);
+    event Recharge(address indexed _user, address _invitation, uint256 _id, uint256 _amount, uint256 _usdt);
 
 
     address public operator;
@@ -125,6 +126,30 @@ contract DiamondCard is ERC1155Supply, Ownable {
         }
 
         uint256 _total = idToPrice[_id].mul(_amount);
+        _settlementUsdt(_total, _invitation);
+        _mint(msg.sender, _id, _amount, "");
+        emit Buy(msg.sender, _invitation, _id, _amount, _total);
+    }
+
+    //用户充值
+    function recharge(uint256 _id, uint256 _amount, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
+        require(_exists(_id), "Err: Invalid ID");
+        require(idToPrice[_id] > 0, "Err: Can't buy");
+        // require(idToMaxSupply[_id] >= totalSupply(_id).add(_amount), "Err: Exceeding maximum supply");
+
+        if(_invitation != address(0)){
+            require(block.number - _blockNumber < 28800, "Err: Sign expired");
+            bytes32 _h = keccak256(abi.encodePacked(msg.sender, _invitation, _blockNumber));
+            require(ecrecover(_h,_v,_r,_s) == rootSigner, "Err: Sign Error");
+        }
+
+        uint256 _total = idToPrice[_id].mul(_amount);
+        _settlementUsdt(_total, _invitation);
+        emit Recharge(msg.sender, _invitation, _id, _amount, _total);
+    }
+
+    //结算资金
+    function _settlementUsdt(uint256 _total, address _invitation) internal{
         uint256 _poolTotal = _total.mul(poolRate).div(totalRate);
         uint256 _platformTotal = 0;
         if(_invitation == address(0)){
@@ -146,9 +171,6 @@ contract DiamondCard is ERC1155Supply, Ownable {
         if(_platformTotal > 0){
             usdt.safeTransferFrom(address(msg.sender), platform, _platformTotal);
         }
-
-        _mint(msg.sender, _id, _amount, "");
-        emit Buy(msg.sender, _invitation, _id, _amount, _total);
     }
 
 
