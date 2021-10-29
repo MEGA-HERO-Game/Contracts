@@ -70,10 +70,6 @@ contract MP is ERC721URIStorage, Ownable {
     string private baseURI;
 
     address public operator;
-    uint256 public mintLimit;
-    
-    uint256 public currentEpoch;
-    uint256 public currentEpochMinted;
 
     modifier _onlyOperator() {
         require(operator == _msgSender(), "Operator: caller is not the operator");
@@ -84,17 +80,6 @@ contract MP is ERC721URIStorage, Ownable {
         require(operator == _msgSender() || owner() == _msgSender(), "Operator: caller is not the operator or owner");
         _;
     }    
-
-    modifier _mintLimit(uint256[] memory _ids) {
-        uint256 epoch = block.number / 28800;
-        if(currentEpoch != epoch){
-            currentEpoch = epoch;
-            currentEpochMinted = 0;
-        }
-        currentEpochMinted = currentEpochMinted + _ids.length;
-        require(currentEpochMinted <= mintLimit, "Err: The MPNFT casting quota has been used up");
-        _;
-    }
 
     constructor() ERC721("MPNFT", "MP") {
     }
@@ -108,15 +93,11 @@ contract MP is ERC721URIStorage, Ownable {
         operator = _operator;
     }
 
-    function setLimit(uint256 _limit) external onlyOwner {
-        mintLimit = _limit;
-    }
-
     function setTokenURI(uint256 tokenId, string memory _tokenURI) external _onlyOperatorOrOwner {
         _setTokenURI(tokenId, _tokenURI);
     }
 
-    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator _mintLimit(_ids) {
+    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator {
         for(uint256 i = 0; i < _ids.length; i++){
             _mint(_to, _ids[i]);
         }
