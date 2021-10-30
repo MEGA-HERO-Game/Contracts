@@ -142,6 +142,7 @@ contract assetSale is asset{
     function recharge(bytes32 _sn, uint256 _usdt, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
 
         require(rechargeState[_sn] == 0, "Err: Already paid");
+        require(_usdt > 0, "Err: Incorrect payment amount");
 
         if(_invitation != address(0)){
             require(block.number - _blockNumber < 28800, "Err: Sign expired");
@@ -360,10 +361,10 @@ contract withdrawAsset is asset{
         }
 
         currentDiamondLimit = currentDiamondLimit + _totalValue;
-        require(currentDiamondLimit < diamondLimit, "Err: The Diamond casting quota has been used up");
+        require(currentDiamondLimit < diamondLimit, "Err: The Diamond mint quota has been used up");
 
         currentMpLimit = currentMpLimit + _mpNum;
-        require(currentMpLimit < mpLimit, "Err: The MPNFT casting quota has been used up");
+        require(currentMpLimit < mpLimit, "Err: The MPNFT mint quota has been used up");
     }
 }
 
