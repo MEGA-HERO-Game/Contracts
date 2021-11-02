@@ -227,7 +227,7 @@ contract exchangeIboxAsset is asset{
 
     mapping(uint256 => iBoxInfo) public iBoxInfoMap;//Ibox资产兑换映射表
 
-    event ExchangeIbox(address _user, uint256 _iboxId, uint256[] _mpIds, uint256 _diaIds, uint256 _diaAmounts, uint256[] _mpType);//TODO 数组变单个
+    event ExchangeIbox(address _user, uint256 _iboxId, uint256[] _mpIds, uint256 _diaIds, uint256 _diaAmounts, uint256[] _mpType);
     event ActivateIbox(address _user, uint256 _iboxId, uint256[] _mpType);
 
     constructor(IERC721 _IBox) {
