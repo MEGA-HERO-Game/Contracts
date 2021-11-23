@@ -2,8 +2,8 @@
 
 pragma solidity >=0.8.0;
 
-import "../node_modules/openzeppelin-solidity/contracts/token/ERC1155/ERC1155.sol";
-import "../node_modules/openzeppelin-solidity/contracts/token/ERC1155/IERC1155Receiver.sol"; 
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 contract MPNFT is ERC1155, IERC1155Receiver{
     address private _governance;
     address private _ibox_exchange;

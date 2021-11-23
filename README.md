@@ -1,1 +1,26 @@
-# Contracts
+# Contract
+
+## install depends
+npm install
+
+## rinkeby testnet
+### compile the contract
+npx hardhat --network heco_testnet compile
+### deploy the contract
+npx hardhat --network heco_testnet deploy
+### verify the contract
+npx hardhat verify --network heco_testnet <contract address>
+
+
+
+### single deploy contract 
+```
+npx hardhat --network heco_testnet run scripts/v2/deploy/003_MPNFT_721.js
+```
+### single test contract
+```
+npx hardhat test test/v2/test/003_MPNFT_721.js
+```
+
+## TODO:
+

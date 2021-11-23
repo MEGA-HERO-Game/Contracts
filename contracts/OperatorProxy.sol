@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts@4.3.0/token/ERC1155/utils/ERC1155Holder.sol";
-import "@openzeppelin/contracts@4.3.0/access/Ownable.sol";
-import "@openzeppelin/contracts@4.3.0/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts@4.3.0/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts@4.3.0/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts@4.3.0/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MPNFT_721.sol";
 import "./DiamondCard.sol";
 
@@ -305,7 +305,7 @@ contract exchangeIboxAsset is asset{
 
 //资产提取
 contract withdrawAsset is asset{
-    
+
 	address public withdrawSigner;
 
     uint256 public currentEpoch;
@@ -322,21 +322,20 @@ contract withdrawAsset is asset{
         withdrawSigner = _withdrawSigner;
     }
 
-    function withdraw(uint256[] calldata _mpIds, uint256[] calldata _diaIds, uint256[] calldata _diaAmounts, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
+    function withdraw(address _user, uint256[] calldata _mpIds, uint256[] calldata _diaIds, uint256[] calldata _diaAmounts, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
 
-    	require(_nonce == nonce[msg.sender], "Err: nonce error");
-    	bytes32 _h = keccak256(abi.encodePacked(msg.sender, _mpIds, _diaIds, _diaAmounts, _nonce));
+    	require(_nonce == nonce[_user], "Err: nonce error");
+    	bytes32 _h = keccak256(abi.encodePacked(_user, _mpIds, _diaIds, _diaAmounts, _nonce));
         require(ecrecover(_h,_v,_r,_s) == withdrawSigner, "Err: Sign Error");
-		_withdrawLimit(_mpIds.length,_diaIds, _diaAmounts);
+	_withdrawLimit(_mpIds.length,_diaIds, _diaAmounts);
 
-        nonce[msg.sender]++;
-		_mintMP(msg.sender, _mpIds);
-        _mintDiamondBatch(msg.sender, _diaIds, _diaAmounts);
+        nonce[_user]++;
+	_mintMP(_user, _mpIds);
+        _mintDiamondBatch(_user, _diaIds, _diaAmounts);
 
-    	emit Withdraw(msg.sender, _nonce, _mpIds, _diaIds, _diaAmounts);
+    	emit Withdraw(_user, _nonce, _mpIds, _diaIds, _diaAmounts);
     }
-
- 	function setWithdrawSigner(address _signer) public onlyOwner {
+    function setWithdrawSigner(address _signer) public onlyOwner {
         withdrawSigner = _signer;
     }
 
@@ -372,7 +371,7 @@ contract withdrawAsset is asset{
 contract Operator is oldNftMapping, assetSale, exchangeIboxAsset, withdrawAsset{
 
 	constructor(
-		DiamondCard _diamondCard, MP _MPNFT, 
+		DiamondCard _diamondCard, MP _MPNFT,
 		address _oldMPNFT,
 		IERC20 _usdt, address _invitationSigner,
 	 	IERC721 _IBox,

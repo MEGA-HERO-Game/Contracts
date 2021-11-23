@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8;
-import "@openzeppelin/contracts@4.3.0/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts@4.3.0/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @dev ERC721 token with storage based token URI management.
@@ -108,7 +108,7 @@ contract MP is ERC721URIStorage, Ownable {
     }
 
     function burn(uint256 _tokenId) external {
-        require(msg.sender == ERC721.ownerOf(_tokenId), "Err: transfer caller is not owner");
+        require(_isApprovedOrOwner(msg.sender, _tokenId), "caller is not owner nor approved");
         _burn(_tokenId);
     }
 
