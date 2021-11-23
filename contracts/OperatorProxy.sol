@@ -89,7 +89,7 @@ contract oldNftMapping is asset, ERC1155Holder{
 
 //资产售卖
 contract assetSale is asset{
-	
+
     address public invitationSigner;
 	IERC20 public usdt;
     address public platform;
@@ -113,16 +113,16 @@ contract assetSale is asset{
     event Recharge(bytes32 indexed _sn, address _user, address _invitation, uint256 _usdt);
     event Buy(address indexed _user, address _invitation, uint256 _id, uint256 _amount, uint256 _usdt);
 
-	constructor(IERC20 _usdt, address _invitationSigner) {        
+	constructor(IERC20 _usdt, address _invitationSigner) {
         totalRate = 10000;
         invitationSigner = _invitationSigner;
         usdt = _usdt;
     }
 
-    
+
     //用户购买钻石卡 On Chain
     function buy(uint256 _id, uint256 _amount, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
-        
+
         require(idToPrice[_id] > 0, "Err: Can't buy");
 
         if(_invitation != address(0)){
@@ -149,16 +149,16 @@ contract assetSale is asset{
             bytes32 _h = keccak256(abi.encodePacked(msg.sender, _invitation, _blockNumber));
             require(ecrecover(_h,_v,_r,_s) == invitationSigner, "Err: Sign Error");
         }
-        
+
         _settlementUsdt(_usdt, _invitation);
         rechargeState[_sn] = _usdt;
         emit Recharge(_sn, msg.sender, _invitation, _usdt);
     }
 
-    
+
     //结算资金
     function _settlementUsdt(uint256 _total, address _invitation) internal{
-        
+
         uint256 _poolTotal = _total.mul(poolRate).div(totalRate);
         uint256 _platformTotal = 0;
 
@@ -261,7 +261,7 @@ contract exchangeIboxAsset is asset{
         uint256[] memory _mpIds;
         if(_spiritNums > 0 || _heroNums > 0){
             _mpIds = new uint256[](_heroNums + _spiritNums);
-        
+
             //英雄ID
             for(uint256 i = 0; i < _heroNums; i++){
                 _mpIds[i] = heroId;
@@ -327,10 +327,10 @@ contract withdrawAsset is asset{
     	require(_nonce == nonce[_user], "Err: nonce error");
     	bytes32 _h = keccak256(abi.encodePacked(_user, _mpIds, _diaIds, _diaAmounts, _nonce));
         require(ecrecover(_h,_v,_r,_s) == withdrawSigner, "Err: Sign Error");
-	_withdrawLimit(_mpIds.length,_diaIds, _diaAmounts);
+        _withdrawLimit(_mpIds.length,_diaIds, _diaAmounts);
 
         nonce[_user]++;
-	_mintMP(_user, _mpIds);
+        _mintMP(_user, _mpIds);
         _mintDiamondBatch(_user, _diaIds, _diaAmounts);
 
     	emit Withdraw(_user, _nonce, _mpIds, _diaIds, _diaAmounts);

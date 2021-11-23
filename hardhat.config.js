@@ -26,7 +26,7 @@ module.exports = {
   },
   etherscan: {
     // Your API key for Scan
-    // apiKey: "QHSTPZUM8UCKX3RY6TTUI2YIAXYCIKK7I4" // Etherscan
+    // apiKey: "5JXANZPM1PDT5U3KXGRSW2QYM14VV69F6P" // Etherscan
     apiKey: "GJYYR3HBA2DWINR24B64RAKHWH535RXFIR" // HecoInfo
 
   },

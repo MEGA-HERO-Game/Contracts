@@ -1,4 +1,3 @@
-
 async function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(() => {
@@ -8,7 +7,7 @@ async function sleep(ms) {
 }
 
 async function main() {
-    const { deploy } = deployments;
+    const { get } = deployments;
     const [ deployer ] = await ethers.getSigners();
 
     console.log('deployer is ', deployer.address)
@@ -32,34 +31,20 @@ async function main() {
         withdrawSigner,
     ];
 
-    // deploy
-    const operatorProxy = await deploy('Operator', {
-       from: deployer.address,
-       args: params,
-        log: true,
-    }).then(s => ethers.getContractAt(s.abi, s.address, deployer));
+    const Operator = await get('Operator');
+    let operatorProxy = await ethers.getContractAt(Operator.abi, Operator.address, deployer);
 
-    console.log('1. V1 Operator has deployed at:', operatorProxy.address);
-
-    console.log('    wait Operator deployed, it will token one minute or more，Please be patient ');
-
+    // check deployed
     await operatorProxy.deployed();
+    console.log('1. V1 operator proxy has deployed at:', mpToken.address);
 
-    // let waitTime = 30; // 30 s wait scan indexed
-    // for (var i = 0; i< waitTime; i++){
-    //     await sleep(1000);
-    //     if ( i%3 == 0) {
-    //         console.log('  wait deploy completed after', waitTime - i, " s");
-    //     }
-    // }
-    //
-    // // verify
-    // await run("verify:verify", {
-    //     address: operatorProxy.address,
-    //     constructorArguments: params
-    // });
-    //
-    // console.log('2. V1 Operator has verifyed');
+    // verify
+    await run("verify:verify", {
+        address: operatorProxy.address,
+        constructorArguments: params
+    });
+
+    console.log('2. V1 Operator Proxy has verifyed');
 }
 
 main()

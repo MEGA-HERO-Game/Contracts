@@ -15,7 +15,7 @@ npx hardhat verify --network heco_testnet <contract address>
 
 ### single deploy contract 
 ```
-npx hardhat --network heco_testnet run scripts/v2/deploy/003_MPNFT_721.js
+npx hardhat --network heco_testnet run scripts/deploy/003_MPNFT_721.js
 ```
 ### single test contract
 ```

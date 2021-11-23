@@ -29,21 +29,21 @@ async function main() {
 
     await mpToken.deployed();
 
-    let waitTime = 1; // 30 s wait scan indexed
-    for (var i = 0; i< waitTime; i++){
-        await sleep(1000);
-        if ( i%3 == 0) {
-            console.log('  wait deploy completed after', waitTime - i, " s");
-        }
-    }
-
-    // verify
-    await run("verify:verify", {
-        address: mpToken.address,
-        constructorArguments: params
-    });
-
-    console.log('2. V2 MP has verifyed');
+    // let waitTime = 1; // 30 s wait scan indexed
+    // for (var i = 0; i< waitTime; i++){
+    //     await sleep(1000);
+    //     if ( i%3 == 0) {
+    //         console.log('  wait deploy completed after', waitTime - i, " s");
+    //     }
+    // }
+    //
+    // // verify
+    // await run("verify:verify", {
+    //     address: mpToken.address,
+    //     constructorArguments: params
+    // });
+    //
+    // console.log('2. V2 MP has verifyed');
 }
 
 main()
