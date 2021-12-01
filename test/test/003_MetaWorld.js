@@ -4,10 +4,10 @@ const { ethers } = require("hardhat");
 const { keccak256} = require('ethereumjs-util')
 const {BigNumber} = require("ethers");
 
-describe("MPNFT_721 V1", function () {
+describe("MetaWorld V1", function () {
 
-  let MP;
-  let hardhatMp;
+  let MetaWorld;
+  let hardhatMetaWorld;
   let owner;    // 合约部署方
   let operator; // 合约后台操作方
   let minter;
@@ -19,10 +19,11 @@ describe("MPNFT_721 V1", function () {
     const params = [
     ];
 
-    MP = await ethers.getContractFactory("MP");
+    MetaWorld = await ethers.getContractFactory("MetaWorld");
     [owner, operator, minter, ...addrs] = await ethers.getSigners();
 
-    hardhatMp = await MP.deploy(params);
+    hardhatMetaWorld = await MetaWorld.deploy(params);
+    await hardhatMetaWorld.deployed();
 
   });
 
@@ -30,7 +31,7 @@ describe("MPNFT_721 V1", function () {
   describe("Deployment", function () {
 
     it("Should set the right owner", async function () {
-      expect(await hardhatMp.owner()).to.equal(owner.address);
+      expect(await hardhatMetaWorld.owner()).to.equal(owner.address);
     });
   });
 
@@ -41,28 +42,28 @@ describe("MPNFT_721 V1", function () {
       let id = [1,2];
 
       // set operator
-      await  hardhatMp.connect(owner).setOperator(operator.address);
-      let contractOperator = await hardhatMp.operator();
+      await  hardhatMetaWorld.connect(owner).setOperator(operator.address);
+      let contractOperator = await hardhatMetaWorld.operator();
       expect(contractOperator).to.equal(operator.address);
 
       // operator mint nft id 1 and id 2 to minter
-      await  hardhatMp.connect(operator).operatorMint(minter.address, id);
-      let balance = await hardhatMp.balanceOf(minter.address);
+      await  hardhatMetaWorld.connect(operator).operatorMint(minter.address, id);
+      let balance = await hardhatMetaWorld.balanceOf(minter.address);
       expect(balance).to.equal(2);
 
       // aprove the nft from minter to operator
-      await hardhatMp.connect(minter).approve(operator.address, id[0])
+      await hardhatMetaWorld.connect(minter).approve(operator.address, id[0])
       let isSelfOwner =  operator.address == minter.address
-      let isAproved =  await hardhatMp.getApproved(id[0]) == operator.address
-      let isApprovedAll = await hardhatMp.isApprovedForAll(minter.address, operator.address)
-      isAproved = isAproved | isSelfOwner | isApprovedAll
-      expect(isAproved).to.equal(1);
+      let isApproved =  await hardhatMetaWorld.getApproved(id[0]) == operator.address
+      let isApprovedAll = await hardhatMetaWorld.isApprovedForAll(minter.address, operator.address)
+      isApproved = isApproved | isSelfOwner | isApprovedAll
+      expect(isApproved).to.equal(1);
 
       // burn by operator
-      await hardhatMp.connect(operator).burn(id[0])
+      await hardhatMetaWorld.connect(operator).burn(id[0])
 
       // balance is must 1
-      balance = await hardhatMp.balanceOf(minter.address);
+      balance = await hardhatMetaWorld.balanceOf(minter.address);
       expect(balance).to.equal(1);
 
       console.log("\t Mint and burn test done");

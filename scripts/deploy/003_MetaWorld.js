@@ -17,17 +17,17 @@ async function main() {
     ];
 
     // deploy
-    const mpToken = await deploy('MP', {
+    const metaWorldToken = await deploy('MetaWorld', {
        from: deployer.address,
        args: params,
         log: true,
     }).then(s => ethers.getContractAt(s.abi, s.address, deployer));
 
-    console.log('1. V2 MP has deployed at:', mpToken.address);
+    console.log('1. V2 meta world has deployed at:', metaWorldToken.address);
 
-    console.log('    wait MP deployed, it will token one minute or more，Please be patient ');
+    console.log('    wait meta world deployed, it will token one minute or more，Please be patient ');
 
-    await mpToken.deployed();
+    await metaWorldToken.deployed();
 
     // let waitTime = 1; // 30 s wait scan indexed
     // for (var i = 0; i< waitTime; i++){
@@ -39,11 +39,11 @@ async function main() {
     //
     // // verify
     // await run("verify:verify", {
-    //     address: mpToken.address,
+    //     address: metaWorldToken.address,
     //     constructorArguments: params
     // });
     //
-    // console.log('2. V2 MP has verifyed');
+    // console.log('2. V2 meta world has verifyed');
 }
 
 main()

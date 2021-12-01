@@ -65,7 +65,7 @@ abstract contract ERC721URIStorage is ERC721Enumerable {
 }
 
 
-contract MP is ERC721URIStorage, Ownable {
+contract MetaWorld is ERC721URIStorage, Ownable {
 
     string private baseURI;
 
@@ -79,9 +79,9 @@ contract MP is ERC721URIStorage, Ownable {
     modifier _onlyOperatorOrOwner() {
         require(operator == _msgSender() || owner() == _msgSender(), "Operator: caller is not the operator or owner");
         _;
-    }    
+    }
 
-    constructor() ERC721("MPNFT", "MP") {
+    constructor() ERC721("Meta-World", "MH") {
     }
 
 

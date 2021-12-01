@@ -12,7 +12,7 @@ describe("OperatorProxy V1", function () {
   let operatorPrivate='0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 
   let hardhatDiamondCard;
-  let hardhatMPNFT;
+  let hardhatMetaWorld;
   let oldMPNFT;
   let hardhatOperatorProxy;
   let usdt;
@@ -31,14 +31,14 @@ describe("OperatorProxy V1", function () {
     hardhatDiamondCard = await DiamondCard.deploy([]);
     await  hardhatDiamondCard.connect(owner).setOperator(operator.address);
 
-    //  deploy the mp nft;
-    let MPNFT = await ethers.getContractFactory("MP");
-    hardhatMPNFT = await MPNFT.deploy([]);
+    //  deploy the MtetaWorld nft;
+    let MetaWorld = await ethers.getContractFactory("MetaWorld");
+    hardhatMetaWorld = await MetaWorld.deploy([]);
 
     //  deploy operator proxy contract
     let OperatorProxy = await ethers.getContractFactory("Operator");
     hardhatOperatorProxy = await OperatorProxy.deploy(
-        hardhatMPNFT.address,
+        hardhatMetaWorld.address,
         oldMPNFT.address,
         usdt.address,
         invitationSigner.address,
@@ -47,7 +47,7 @@ describe("OperatorProxy V1", function () {
 
     await hardhatOperatorProxy.connect(owner).setLimit(10);
     // set Operator Proxy contract to the operator
-    await  hardhatMPNFT.connect(owner).setOperator(hardhatOperatorProxy.address);
+    await  hardhatMetaWorld.connect(owner).setOperator(hardhatOperatorProxy.address);
 
   });
 
@@ -76,7 +76,7 @@ describe("OperatorProxy V1", function () {
 
       //  withdraw
       await  hardhatOperatorProxy.connect(operator).withdraw(minter.address, _mpIds, _nonce, signature.v, signature.r, signature.s);
-      let balance = await hardhatMPNFT.balanceOf(minter.address);
+      let balance = await hardhatMetaWorld.balanceOf(minter.address);
       expect(balance).to.equal(2);
       console.log("\t Mint and burn test done");
     });

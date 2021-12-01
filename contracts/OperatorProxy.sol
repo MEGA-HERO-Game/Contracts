@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./MPNFT_721.sol";
+import "./MetaWorld.sol";
 
 abstract contract asset is Ownable{
 
-	MP public MPNFT;
+    MetaWorld public metaWorld;
 
     uint private unlocked = 1;
     modifier _lock() {
@@ -22,10 +22,10 @@ abstract contract asset is Ownable{
         unlocked = 1;
     }
 
-	//创建 MP
-	function _mintMP(address _addr, uint256[] memory _mpIds) internal {
+	//创建 meta world NFT
+	function _mintMetaWorld(address _addr, uint256[] memory _mpIds) internal {
 		if(_mpIds.length > 0){
-        	MPNFT.operatorMint(_addr, _mpIds);
+            metaWorld.operatorMint(_addr, _mpIds);
         }
 	}
 }
@@ -54,7 +54,7 @@ contract oldNftMapping is asset, ERC1155Holder{
     ) public override _lock _onlyOldMPNFT returns (bytes4) {
         uint256[] memory _mpIds = new uint256[](1);
         _mpIds[0] = id;
-        _mintMP(operator, _mpIds);
+        _mintMetaWorld(operator, _mpIds);
         return super.onERC1155Received(operator, from, id, value, data);
     }
 
@@ -66,7 +66,7 @@ contract oldNftMapping is asset, ERC1155Holder{
         uint256[] calldata values,
         bytes calldata data
     ) public override _lock _onlyOldMPNFT returns (bytes4) {
-        _mintMP(operator, ids);
+        _mintMetaWorld(operator, ids);
         return super.onERC1155BatchReceived(operator, from, ids, values, data);
     }
 }
@@ -231,7 +231,7 @@ contract exchangeIboxAsset is asset{
                 spiritId++;
             }
 
-            _mintMP(msg.sender, _mpIds);
+            _mintMetaWorld(msg.sender, _mpIds);
         }
 
     	emit ExchangeIbox(msg.sender, _iboxId, _mpIds, _mpType);
@@ -283,7 +283,7 @@ contract withdrawAsset is asset{
         _withdrawLimit(_mpIds.length);
 
         nonce[_user]++;
-        _mintMP(_user, _mpIds);
+        _mintMetaWorld(_user, _mpIds);
 
     	emit Withdraw(_user, _nonce, _mpIds);
     }
@@ -306,7 +306,7 @@ contract withdrawAsset is asset{
         }
 
         currentMpLimit = currentMpLimit + _mpNum;
-        require(currentMpLimit < mpLimit, "Err: The MPNFT mint quota has been used up");
+        require(currentMpLimit < mpLimit, "Err: The meta world mint quota has been used up");
     }
 }
 
@@ -314,7 +314,7 @@ contract withdrawAsset is asset{
 contract Operator is oldNftMapping, assetSale, exchangeIboxAsset, withdrawAsset{
 
 	constructor(
-        MP _MPNFT,
+        MetaWorld _metaWorld,
 		address _oldMPNFT,
 		IERC20 _usdt, address _invitationSigner,
 	 	IERC721 _IBox,
@@ -325,6 +325,6 @@ contract Operator is oldNftMapping, assetSale, exchangeIboxAsset, withdrawAsset{
 		exchangeIboxAsset(_IBox)
 		withdrawAsset(_withdrawSigner)
 	{
-        MPNFT = _MPNFT;//MPNFT 合约地址
+        metaWorld = _metaWorld;//Meta World 合约地址
     }
 }

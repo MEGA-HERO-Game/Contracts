@@ -18,9 +18,9 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "deploy": "npx hardhat deploy",
-    "deploy_mp721": "npx hardhat --network heco_testnet run scripts/deploy/003_MPNFT_721.js",
-    "verify_mp721": "npx hardhat --network heco_testnet run scripts/verify/003_MPNFT_721.js",
-    "configuration_mp721": "npx hardhat --network heco_testnet run scripts/configuration/003_MPNFT_721.js",
+    "deploy_metaWorld": "npx hardhat --network heco_testnet run scripts/deploy/003_MetaWorld.js",
+    "verify_metaWorld": "npx hardhat --network heco_testnet run scripts/verify/003_MetaWorld.js",
+    "configuration_metaWorld": "npx hardhat --network heco_testnet run scripts/configuration/003_MetaWorld.js",
     "configuration_operator": "npx hardhat --network heco_testnet run scripts/configuration/004_OperatorProxy.js"
   }
 }
