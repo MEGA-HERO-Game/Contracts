@@ -38,7 +38,6 @@ describe("OperatorProxy V1", function () {
     //  deploy operator proxy contract
     let OperatorProxy = await ethers.getContractFactory("Operator");
     hardhatOperatorProxy = await OperatorProxy.deploy(
-        hardhatDiamondCard.address,
         hardhatMPNFT.address,
         oldMPNFT.address,
         usdt.address,
@@ -46,7 +45,7 @@ describe("OperatorProxy V1", function () {
         ibox.address,
         withdrawSigner.address);
 
-    await hardhatOperatorProxy.connect(owner).setLimit(10, 10);
+    await hardhatOperatorProxy.connect(owner).setLimit(10);
     // set Operator Proxy contract to the operator
     await  hardhatMPNFT.connect(owner).setOperator(hardhatOperatorProxy.address);
 
@@ -57,15 +56,11 @@ describe("OperatorProxy V1", function () {
     it("Should withdraw is ok", async function () {
       // Withdraw(mint nft and diamond card)
       let _mpIds = [1,2];
-      let _diaIds = [];
-      let _diaAmounts = [];
       let _nonce = 0;
 
       // withdraw(
       // address _user,
       // uint256[] calldata _mpIds,
-      // uint256[] calldata _diaIds,
-      // uint256[] calldata _diaAmounts,
       // uint256 _nonce,
       // uint8 _v,
       // bytes32 _r,
@@ -73,14 +68,14 @@ describe("OperatorProxy V1", function () {
       // )
 
       //  cal sig
-      // abi.encodePacked(_user, _mpIds, _diaIds, _diaAmounts, _nonce)
-      let withdrawHash = await ethers.utils.solidityKeccak256(["uint160","uint256[]", "uint256[]", "uint256[]", "uint256"], [minter.address, _mpIds, _diaIds, _diaAmounts, _nonce]);
+      // abi.encodePacked(_user, _mpIds, _nonce)
+      let withdrawHash = await ethers.utils.solidityKeccak256(["uint160","uint256[]", "uint256"], [minter.address, _mpIds, _nonce]);
       let withdrawHashBytes = ethers.utils.arrayify(withdrawHash);
       let signingKey = new ethers.utils.SigningKey(operatorPrivate);
       let signature = signingKey.signDigest(withdrawHashBytes);
 
       //  withdraw
-      await  hardhatOperatorProxy.connect(operator).withdraw(minter.address, _mpIds, _diaIds, _diaAmounts, _nonce, signature.v, signature.r, signature.s);
+      await  hardhatOperatorProxy.connect(operator).withdraw(minter.address, _mpIds, _nonce, signature.v, signature.r, signature.s);
       let balance = await hardhatMPNFT.balanceOf(minter.address);
       expect(balance).to.equal(2);
       console.log("\t Mint and burn test done");

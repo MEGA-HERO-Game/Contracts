@@ -11,7 +11,6 @@ async function main() {
     const { get } = deployments;
     const [ deployer ] = await ethers.getSigners();
 
-    let diamondLimit = 100;
     let mpLimit = 100;
 
     console.log('deployer is ', deployer.address)
@@ -23,15 +22,13 @@ async function main() {
     console.log('1. V1 operator proxy has deployed at:', operatorProxy.address);
 
     // check and set the withdraw limit
-    let curDiamondLimit = await operatorProxy.diamondLimit();
-    let curMpLimit = await operatorProxy.mpLimit();if (curMpLimit != mpLimit || curDiamondLimit != diamondLimit) {
+    let curMpLimit = await operatorProxy.mpLimit();
+    if (curMpLimit != mpLimit ) {
         console.log('   V1 operator current MpLimit is:', curMpLimit);
-        console.log('   V1 operator current diamondLimit is:', curDiamondLimit);
-        await  operatorProxy.setLimit(diamondLimit, mpLimit);
+        await  operatorProxy.setLimit(mpLimit);
         console.log('   V1 operator MpLimit set to :', mpLimit);
-        console.log('   V1 operator diamondLimit set to:', diamondLimit);
     } else {
-        console.log('   V1 operator diamondLimit is:', curDiamondLimit, 'MpLimit is:', curMpLimit);
+        console.log('   V1 operator MpLimit is:', curMpLimit);
     }
 
 

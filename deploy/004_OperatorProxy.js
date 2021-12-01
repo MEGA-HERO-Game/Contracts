@@ -17,7 +17,6 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
 
   const options = { from: deployer };
 
-  let diamondCard = "0x572F37F925D0989D3c7bB14d92C80f08FF9E4B27";
   let mPNFT = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
   let oldMPNFT = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
   let usdt = "0xE65673Ce68C0caaBEF36e5301c7A7654E630a2C6";
@@ -26,7 +25,6 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
   let withdrawSigner = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
   // Construction parameters
   const params = [
-    diamondCard,
     mPNFT,
     oldMPNFT,
     usdt,

@@ -16,10 +16,11 @@ npx hardhat verify --network heco_testnet <contract address>
 ### single deploy contract 
 ```
 npx hardhat --network heco_testnet run scripts/deploy/003_MPNFT_721.js
+npx hardhat --network heco_testnet run scripts/deploy/004_OperatorProxy.js
 ```
 ### single test contract
 ```
-npx hardhat test test/v2/test/003_MPNFT_721.js
+npx hardhat test test/test/003_MPNFT_721.js
 ```
 
 ## TODO:

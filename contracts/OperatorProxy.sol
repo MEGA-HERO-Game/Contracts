@@ -9,12 +9,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MPNFT_721.sol";
-import "./DiamondCard.sol";
 
 abstract contract asset is Ownable{
 
 	MP public MPNFT;
-    DiamondCard public diamondCard;
 
     uint private unlocked = 1;
     modifier _lock() {
@@ -29,19 +27,6 @@ abstract contract asset is Ownable{
 		if(_mpIds.length > 0){
         	MPNFT.operatorMint(_addr, _mpIds);
         }
-	}
-
-	//创建多种钻石卡
-	function _mintDiamondBatch(address _addr, uint256[] memory _diaIds, uint256[] memory _diaAmounts) internal {
-        if(_diaIds.length > 0){
-        	require(_diaIds.length == _diaAmounts.length, "Err: _diaIds and _diaAmounts do not match in length");
-        	diamondCard.operatorMintBatch(_addr, _diaIds, _diaAmounts);
-        }
-	}
-
-	//创建一种钻石卡
-	function _mintDiamond(address _addr, uint256 _diaId, uint256 _diaAmount) internal {
-        diamondCard.operatorMint(_addr, _diaId, _diaAmount);
 	}
 }
 
@@ -119,25 +104,6 @@ contract assetSale is asset{
         usdt = _usdt;
     }
 
-
-    //用户购买钻石卡 On Chain
-    function buy(uint256 _id, uint256 _amount, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
-
-        require(idToPrice[_id] > 0, "Err: Can't buy");
-
-        if(_invitation != address(0)){
-            require(block.number - _blockNumber < 28800, "Err: Sign expired");
-            bytes32 _h = keccak256(abi.encodePacked(msg.sender, _invitation, _blockNumber));
-            require(ecrecover(_h,_v,_r,_s) == invitationSigner, "Err: Sign Error");
-        }
-
-        uint256 _usdt = idToPrice[_id].mul(_amount);
-        _settlementUsdt(_usdt, _invitation);
-        _mintDiamond(msg.sender, _id, _amount);
-        emit Buy(msg.sender, _invitation, _id, _amount, _usdt);
-    }
-
-
     //用户充值 Off Chain
     function recharge(bytes32 _sn, uint256 _usdt, uint8 _v, bytes32 _r, bytes32 _s, address _invitation,uint256 _blockNumber) external{
 
@@ -199,13 +165,6 @@ contract assetSale is asset{
         invitationRate = totalRate.sub(platformRate).sub(poolRate);
     }
 
-    //设置钻石卡价格
-    function setDiamondCardPrice(uint256 _id, uint256 _price) external onlyOwner {
-        require(diamondCard.exists(_id), "Err: Invalid ID");
-        idToPrice[_id] = _price;
-        emit Price(_price, _id);
-    }
-
     function setInvitationSigner(address _signer) public onlyOwner {
         invitationSigner = _signer;
     }
@@ -221,13 +180,12 @@ contract exchangeIboxAsset is asset{
     struct iBoxInfo{
          uint64 heroNums;//英雄数量
          uint64 spiritNums;//精灵数量
-         uint64 diamondNums;//钻石卡数量（500面值）
          uint64 isActivate;//激活权限
     }
 
     mapping(uint256 => iBoxInfo) public iBoxInfoMap;//Ibox资产兑换映射表
 
-    event ExchangeIbox(address _user, uint256 _iboxId, uint256[] _mpIds, uint256 _diaIds, uint256 _diaAmounts, uint256[] _mpType);
+    event ExchangeIbox(address _user, uint256 _iboxId, uint256[] _mpIds, uint256[] _mpType);
     event ActivateIbox(address _user, uint256 _iboxId, uint256[] _mpType);
 
     constructor(IERC721 _IBox) {
@@ -236,13 +194,13 @@ contract exchangeIboxAsset is asset{
 
 
     //管理员添加Ibox资产信息
-    function addIboxId(uint256[] calldata _iboxIds, uint64[] calldata _heroNums, uint64[] calldata _spiritNums, uint64[] calldata _diamondNums, uint64[] calldata _isActivate) external onlyOwner {
+    function addIboxId(uint256[] calldata _iboxIds, uint64[] calldata _heroNums, uint64[] calldata _spiritNums, uint64[] calldata _isActivate) external onlyOwner {
 
         uint256 _len = _iboxIds.length;
-        require(_len == _heroNums.length && _len == _spiritNums.length && _len == _diamondNums.length && _len == _isActivate.length, "Err: Inconsistent parameter length");
+        require(_len == _heroNums.length && _len == _spiritNums.length  && _len == _isActivate.length, "Err: Inconsistent parameter length");
 
         for(uint256 i = 0; i < _len; i++){
-            iBoxInfoMap[_iboxIds[i]] = iBoxInfo(_heroNums[i], _spiritNums[i], _diamondNums[i], _isActivate[i]);
+            iBoxInfoMap[_iboxIds[i]] = iBoxInfo(_heroNums[i], _spiritNums[i],  _isActivate[i]);
         }
     }
 
@@ -251,10 +209,9 @@ contract exchangeIboxAsset is asset{
 
         uint256 _heroNums = iBoxInfoMap[_iboxId].heroNums;
         uint256 _spiritNums = iBoxInfoMap[_iboxId].spiritNums;
-        uint256 _diamondNums = iBoxInfoMap[_iboxId].diamondNums;
 
         //是否有可兑换的资产
-        require(_heroNums > 0 || _spiritNums > 0 || _diamondNums > 0, "Err: Incorrect asset type");
+        require(_heroNums > 0 || _spiritNums  > 0, "Err: Incorrect asset type");
 
         _destroyIbox(_iboxId);
 
@@ -277,11 +234,7 @@ contract exchangeIboxAsset is asset{
             _mintMP(msg.sender, _mpIds);
         }
 
-        if(_diamondNums > 0){
-            _mintDiamond(msg.sender, 500, _diamondNums);
-        }
-
-    	emit ExchangeIbox(msg.sender, _iboxId, _mpIds, 500, _diamondNums, _mpType);
+    	emit ExchangeIbox(msg.sender, _iboxId, _mpIds, _mpType);
     }
 
     //销毁Ibox激活游戏 Off Chain
@@ -316,36 +269,34 @@ contract withdrawAsset is asset{
 
     mapping(address => uint256) public nonce;
 
-    event Withdraw(address _user, uint256 _nonce, uint256[] _mpIds, uint256[] _diaIds, uint256[] _diaAmounts);
+    event Withdraw(address _user, uint256 _nonce, uint256[] _mpIds);
 
     constructor(address _withdrawSigner) {
         withdrawSigner = _withdrawSigner;
     }
 
-    function withdraw(address _user, uint256[] calldata _mpIds, uint256[] calldata _diaIds, uint256[] calldata _diaAmounts, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
+    function withdraw(address _user, uint256[] calldata _mpIds, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
 
     	require(_nonce == nonce[_user], "Err: nonce error");
-    	bytes32 _h = keccak256(abi.encodePacked(_user, _mpIds, _diaIds, _diaAmounts, _nonce));
+    	bytes32 _h = keccak256(abi.encodePacked(_user, _mpIds, _nonce));
         require(ecrecover(_h,_v,_r,_s) == withdrawSigner, "Err: Sign Error");
-        _withdrawLimit(_mpIds.length,_diaIds, _diaAmounts);
+        _withdrawLimit(_mpIds.length);
 
         nonce[_user]++;
         _mintMP(_user, _mpIds);
-        _mintDiamondBatch(_user, _diaIds, _diaAmounts);
 
-    	emit Withdraw(_user, _nonce, _mpIds, _diaIds, _diaAmounts);
+    	emit Withdraw(_user, _nonce, _mpIds);
     }
     function setWithdrawSigner(address _signer) public onlyOwner {
         withdrawSigner = _signer;
     }
 
-    function setLimit(uint256 _diamondLimit, uint256 _mpLimit) external onlyOwner {
-    	diamondLimit = _diamondLimit;
+    function setLimit(uint256 _mpLimit) external onlyOwner {
         mpLimit = _mpLimit;
     }
 
     //限制每天提币的数量
-    function _withdrawLimit(uint256 _mpNum, uint256[] calldata _diaIds, uint256[] calldata _diaAmounts) internal {
+    function _withdrawLimit(uint256 _mpNum) internal {
 
     	uint256 _epoch = block.number / 28800;
         if(currentEpoch != _epoch){
@@ -353,14 +304,6 @@ contract withdrawAsset is asset{
             currentDiamondLimit = 0;
             currentMpLimit = 0;
         }
-
-        uint256 _totalValue = 0;
-        for(uint256 i = 0; i < _diaIds.length; i++){
-            _totalValue = _totalValue + _diaIds[i] * _diaAmounts[i];//钻石ID和钻石面值相等
-        }
-
-        currentDiamondLimit = currentDiamondLimit + _totalValue;
-        require(currentDiamondLimit < diamondLimit, "Err: The Diamond mint quota has been used up");
 
         currentMpLimit = currentMpLimit + _mpNum;
         require(currentMpLimit < mpLimit, "Err: The MPNFT mint quota has been used up");
@@ -371,7 +314,7 @@ contract withdrawAsset is asset{
 contract Operator is oldNftMapping, assetSale, exchangeIboxAsset, withdrawAsset{
 
 	constructor(
-		DiamondCard _diamondCard, MP _MPNFT,
+        MP _MPNFT,
 		address _oldMPNFT,
 		IERC20 _usdt, address _invitationSigner,
 	 	IERC721 _IBox,
@@ -382,7 +325,6 @@ contract Operator is oldNftMapping, assetSale, exchangeIboxAsset, withdrawAsset{
 		exchangeIboxAsset(_IBox)
 		withdrawAsset(_withdrawSigner)
 	{
-        diamondCard = _diamondCard;//钻石NFT合约地址
         MPNFT = _MPNFT;//MPNFT 合约地址
     }
 }
