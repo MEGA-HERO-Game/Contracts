@@ -27,7 +27,8 @@ module.exports = {
   etherscan: {
     // Your API key for Scan
     // apiKey: "5JXANZPM1PDT5U3KXGRSW2QYM14VV69F6P" // Etherscan
-    apiKey: "GJYYR3HBA2DWINR24B64RAKHWH535RXFIR" // HecoInfo
+    // apiKey: "GJYYR3HBA2DWINR24B64RAKHWH535RXFIR" // HecoInfo
+    apiKey: "C8577GTIXAR7I4PX1GEWDB7M8TXARRR91Q" // Bsc
 
   },
   networks: {
@@ -52,6 +53,17 @@ module.exports = {
       chainId: 128,
       url: 'https://http-mainnet.hecochain.com',
       accounts: ['f13b65a07bd82bd2da74d3f3da0d66ba9b9feff4417d0e2d377dce57e1575f9c'], //0x6aFa4c4342De9E292fd02EeD450AeF625C488D7d
+    },
+    bsc_testnet: {
+      chainId: 97,
+      url: 'https://data-seed-prebsc-1-s3.binance.org:8545/',
+      gasPrice: 10000000000,
+      accounts: ['f13b65a07bd82bd2da74d3f3da0d66ba9b9feff4417d0e2d377dce57e1575f9c']
+    },
+    bsc: {
+      chainId: 56,
+      url: 'https://bsc-dataseed1.defibit.io/',
+      accounts: ['f13b65a07bd82bd2da74d3f3da0d66ba9b9feff4417d0e2d377dce57e1575f9c']
     },
   },
 

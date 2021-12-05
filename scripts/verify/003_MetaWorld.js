@@ -6,6 +6,8 @@ async function sleep(ms) {
     });
 }
 
+let withdrawSigner = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
+
 async function main() {
     const { get } = deployments;
     const [ deployer ] = await ethers.getSigners();
@@ -14,18 +16,19 @@ async function main() {
 
     // Construction parameters
     const params = [
+        withdrawSigner,
     ];
 
     const MetaWorld = await get('MetaWorld');
-    let metaWorldToken = await ethers.getContractAt(MetaWorld.abi, MetaWorld.address, deployer);
+    let contract = await ethers.getContractAt(MetaWorld.abi, MetaWorld.address, deployer);
 
     // check deployed
-    await metaWorldToken.deployed();
-    console.log('1. V1 meta world has deployed at:', mpToken.address);
+    await contract.deployed();
+    console.log('1. V1 meta world has deployed at:', contract.address);
 
     // verify
     await run("verify:verify", {
-        address: metaWorldToken.address,
+        address: contract.address,
         constructorArguments: params
     });
 

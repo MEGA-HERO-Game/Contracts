@@ -12,18 +12,21 @@ describe("MetaWorld V1", function () {
   let operator; // 合约后台操作方
   let minter;
   let addrs;
-
+  let withdrawSigner = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+  let withdrawSingerPrivate='0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 
   beforeEach(async function () {
-    // Get the ContractFactory and Signers here.
+    // Construction parameters
     const params = [
+      withdrawSigner,
     ];
 
     MetaWorld = await ethers.getContractFactory("MetaWorld");
     [owner, operator, minter, ...addrs] = await ethers.getSigners();
 
-    hardhatMetaWorld = await MetaWorld.deploy(params);
+    hardhatMetaWorld = await MetaWorld.deploy(withdrawSigner);
     await hardhatMetaWorld.deployed();
+    await  hardhatMetaWorld.connect(owner).setOperator(operator.address);
 
   });
 
@@ -70,5 +73,37 @@ describe("MetaWorld V1", function () {
     });
 
   });
+
+  describe("Withdraw", function () {
+    it("Should withdraw is ok", async function () {
+      // Withdraw(mint nft and diamond card)
+      let _mpIds = [1,2];
+      let _nonce = 0;
+
+      // withdraw(
+      // address _user,
+      // uint256[] calldata _mpIds,
+      // uint256 _nonce,
+      // uint8 _v,
+      // bytes32 _r,
+      // bytes32 _s
+      // )
+
+      //  cal sig
+      // abi.encodePacked(_user, _mpIds, _nonce)
+      let withdrawHash = await ethers.utils.solidityKeccak256(["uint160","uint256[]", "uint256"], [minter.address, _mpIds, _nonce]);
+      let withdrawHashBytes = ethers.utils.arrayify(withdrawHash);
+      let signingKey = new ethers.utils.SigningKey(withdrawSingerPrivate);
+      let signature = signingKey.signDigest(withdrawHashBytes);
+
+      //  withdraw
+      await  hardhatMetaWorld.connect(operator).withdraw(minter.address, _mpIds, _nonce, signature.v, signature.r, signature.s);
+      let balance = await hardhatMetaWorld.balanceOf(minter.address);
+      expect(balance).to.equal(2);
+      console.log("\t Mint and burn test done");
+    });
+
+  });
+
 
 });

@@ -6,9 +6,14 @@ async function sleep(ms) {
     });
 }
 
-const operatorAddr = "0xf641842C9e753177CBAcFf8DfB2cC90F25324873"
-const metaWorldAddress = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2"
+const operatorAddress = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+const operatorPrivite = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
 
+// heco testnet
+//const metaWorldAddress = "0x431cF2d9cdb78C9324Ae72d3567a951577658e16"
+
+// bsc testnet
+const metaWorldAddress = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2"
 async function main() {
     const { get } = deployments;
     const [ deployer ] = await ethers.getSigners();
@@ -24,12 +29,12 @@ async function main() {
 
     // check and set the operator minter(the operator proxy contract address)
     let curOperator = await metaWorldToken.operator();
-    if (curOperator != operatorAddr) {
+    if (curOperator != operatorAddress) {
         console.log('   V1 meta world current operator address is:', curOperator);
-        await  metaWorldToken.connect(deployer).setOperator(operatorAddr);
-        console.log('   V1 meta world operator address set to:', operatorAddr);
+        await  metaWorldToken.connect(deployer).setOperator(operatorAddress);
+        console.log('   V1 meta world operator address set to:', operatorAddress);
     } else {
-        console.log('   V1 meta world operator address already is:', operatorAddr);
+        console.log('   V1 meta world operator address already is:', operatorAddress);
     }
 
 

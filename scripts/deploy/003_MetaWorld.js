@@ -12,8 +12,10 @@ async function main() {
 
     console.log('deployer is ', deployer.address)
 
+    let withdrawSigner = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
     // Construction parameters
     const params = [
+        withdrawSigner,
     ];
 
     // deploy

@@ -71,6 +71,21 @@ contract MetaWorld is ERC721URIStorage, Ownable {
 
     address public operator;
 
+    uint private unlocked = 1;
+
+    address public withdrawSigner;
+
+    mapping(address => uint256) public nonce;
+
+    event Withdraw(address _user, uint256 _nonce, uint256[] _mpIds);
+
+    modifier _lock() {
+        require(unlocked == 1, 'Err: LOCKED');
+        unlocked = 0;
+        _;
+        unlocked = 1;
+    }
+
     modifier _onlyOperator() {
         require(operator == _msgSender(), "Operator: caller is not the operator");
         _;
@@ -81,9 +96,42 @@ contract MetaWorld is ERC721URIStorage, Ownable {
         _;
     }
 
-    constructor() ERC721("Meta-World", "MH") {
+    constructor(address _withdrawSigner) ERC721("Meta-World", "MH") {
+        withdrawSigner = _withdrawSigner;
     }
 
+    function mint(address _to, uint256 _tokenId) external onlyOwner{
+        _mint(_to, _tokenId);
+    }
+
+    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator {
+        for(uint256 i = 0; i < _ids.length; i++){
+            _mint(_to, _ids[i]);
+        }
+    }
+
+    function withdraw(address _user, uint256[] calldata _ids, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock _onlyOperator {
+
+        require(_nonce == nonce[_user], "Err: nonce error");
+        bytes32 _h = keccak256(abi.encodePacked(_user, _ids, _nonce));
+        require(ecrecover(_h,_v,_r,_s) == withdrawSigner, "Err: Sign Error");
+
+        nonce[_user]++;
+        for(uint256 i = 0; i < _ids.length; i++){
+            _mint(_user, _ids[i]);
+        }
+
+        emit Withdraw(_user, _nonce, _ids);
+    }
+
+    function burn(uint256 _tokenId) external {
+        require(_isApprovedOrOwner(msg.sender, _tokenId), "caller is not owner nor approved");
+        _burn(_tokenId);
+    }
+
+    function setWithdrawSigner(address _signer) public onlyOwner {
+        withdrawSigner = _signer;
+    }
 
     function setBaseUri(string memory _baseURIArg) external onlyOwner {
         baseURI = _baseURIArg;
@@ -95,21 +143,6 @@ contract MetaWorld is ERC721URIStorage, Ownable {
 
     function setTokenURI(uint256 tokenId, string memory _tokenURI) external _onlyOperatorOrOwner {
         _setTokenURI(tokenId, _tokenURI);
-    }
-
-    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator {
-        for(uint256 i = 0; i < _ids.length; i++){
-            _mint(_to, _ids[i]);
-        }
-    }
-
-    function mint(address _to, uint256 _tokenId) external onlyOwner{
-        _mint(_to, _tokenId);
-    }
-
-    function burn(uint256 _tokenId) external {
-        require(_isApprovedOrOwner(msg.sender, _tokenId), "caller is not owner nor approved");
-        _burn(_tokenId);
     }
 
     function _setBaseURI(string memory baseURI_) internal virtual {
