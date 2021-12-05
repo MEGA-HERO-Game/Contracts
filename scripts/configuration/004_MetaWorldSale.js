@@ -11,8 +11,8 @@ async function sleep(ms) {
 // let usdt = "0xE65673Ce68C0caaBEF36e5301c7A7654E630a2C6";
 
 // bsc testnet
-const metaWorldAddress = "0x49f4Bab1F968a959FC201c047f632F7ADbedc9E9"
-let usdt = "0xE65673Ce68C0caaBEF36e5301c7A7654E630a2C6";
+const metaWorldSaleAddress = "0x49f4Bab1F968a959FC201c047f632F7ADbedc9E9"
+let usdt = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
 
 
 async function main() {
@@ -24,7 +24,7 @@ async function main() {
 
     // deployed check
     const MetaWorldSale = await ethers.getContractFactory("contracts/MetaWorldSale.sol:MetaWorldSale");
-    const contract = new ethers.Contract(metaWorldAddress, MetaWorldSeal.interface, ethers.provider);
+    const contract = new ethers.Contract(metaWorldSaleAddress, MetaWorldSale.interface, ethers.provider);
 
     console.log('1. V1 MetaWorldSale has deployed at:', contract.address);
 
@@ -32,7 +32,7 @@ async function main() {
     let currencyUsdt = await contract.getPaymentCurrencyById(2);
     if (currencyUsdt.currency != usdt ) {
         console.log('   V1 MetaWorldSale currency is not set');
-        await  operatorProxy.connect(deployer).addPaymentCurrency(usdt);
+        await  contract.connect(deployer).addPaymentCurrency(usdt);
         console.log('   V1 MetaWorldSale currency set to :', usdt);
     } else {
         console.log('   V1 MetaWorldSale currency is :', usdt);

@@ -32,8 +32,8 @@ npx hardhat --network bsc_testnet run scripts/verify/003_MetaWorld.js
 npx hardhat --network bsc_testnet run scripts/configuration/003_MetaWorld.js
 
 npx hardhat --network bsc_testnet run scripts/deploy/004_MetaWorldSale.js
-npx hardhat --network bsc_testnet run scripts/verify/003_MetaWorldSeal.js
-npx hardhat --network bsc_testnet run scripts/configuration/003_MetaWorldSeal.js
+npx hardhat --network bsc_testnet run scripts/verify/004_MetaWorldSale.js
+npx hardhat --network bsc_testnet run scripts/configuration/004_MetaWorldSale.js
 ```
 
 ## TODO:
