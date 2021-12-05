@@ -17,11 +17,18 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
 
   const options = { from: deployer };
 
+  let metaWorld = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
+  let platformRecipient = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
+  let feeRatio = 20; //2%
+
   // Construction parameters
   const params = [
+    metaWorld,
+    platformRecipient,
+    feeRatio,
   ];
 
-  const mpToken = await deploy('MP', {...options, args: params});
+  const contract = await deploy('MetaWorldSale', {...options, args: params});
 
   if (network.live) {
     signer = await ethers.getNamedSigner('deployer');
@@ -30,9 +37,9 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
     signer = await ethers.getSigner(signer);
   }
 
-  console.log('1. V1 MPNFT_721 has deployed at:', mpToken.address);
+  console.log('1. V1 MetaWorldSale has deployed at:', contract.address);
 
-  console.log('    wait MPNFT_721 deployed, it will token one minute or more，Please be patient ');
+  console.log('    wait MetaWorldSale deployed, it will token one minute or more，Please be patient ');
 
 
   let waitTime = 60; // 60 s wait scan indexed
@@ -43,16 +50,15 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
     }
   }
 
-  verifyAddress = mpToken.address;
-  // verifyAddress = '0xEd4aca02bC521641b6eDdCD1e3C7c404B5134404';
+  verifyAddress = contract.address;
   await run("verify:verify", {
     address: verifyAddress,
     constructorArguments: params
   });
-  console.log('1. V1 MPNFT_721 has verifyed');
+  console.log('1. V1 MetaWorldSale has verifyed');
 
   return network.live;
 };
 
-func.id = 'deploy_MPNFT_721_v1';
+func.id = 'deploy_MetaWorldSale_v1';
 module.exports = func;
