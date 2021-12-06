@@ -7,10 +7,13 @@ async function sleep(ms) {
     }, ms)
   });
 }
-// heco_testnet
-let metaWorld = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
-let platformRecipient = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
-let feeRatio = 20; //2%
+
+// heco_test net
+let metaWorld = "0x431cF2d9cdb78C9324Ae72d3567a951577658e16";
+
+// bsc_test net
+// let metaWorld = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
+
 
 const func = async ({ getNamedAccounts, deployments, network }) => {
   const { AddressZero } = ethers.constants;
@@ -24,11 +27,9 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
   // Construction parameters
   const params = [
     metaWorld,
-    platformRecipient,
-    feeRatio,
   ];
 
-  const contract = await deploy('MetaWorldSale', {...options, args: params});
+  const contract = await deploy('MetaWorldCollocation', {...options, args: params});
 
   if (network.live) {
     signer = await ethers.getNamedSigner('deployer');
@@ -37,9 +38,9 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
     signer = await ethers.getSigner(signer);
   }
 
-  console.log('1. V1 MetaWorldSale has deployed at:', contract.address);
+  console.log('1. V1 MetaWorldCollocation has deployed at:', contract.address);
 
-  console.log('    wait MetaWorldSale deployed, it will token one minute or more，Please be patient ');
+  console.log('    wait MetaWorldCollocation deployed, it will token one minute or more，Please be patient ');
 
 
   let waitTime = 60; // 60 s wait scan indexed
@@ -55,10 +56,10 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
     address: verifyAddress,
     constructorArguments: params
   });
-  console.log('1. V1 MetaWorldSale has verifyed');
+  console.log('1. V1 MetaWorldCollocation has verifyed');
 
   return network.live;
 };
 
-func.id = 'deploy_MetaWorldSale_v1';
+func.id = 'deploy_MetaWorldCollocation_v1';
 module.exports = func;

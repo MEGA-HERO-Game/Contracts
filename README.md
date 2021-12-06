@@ -23,6 +23,17 @@ npx hardhat --network heco_testnet run scripts/configuration/003_MetaWorld.js
 npx hardhat test test/test/003_MetaWorld.js
 ```
 
+### heco test net deploy
+```
+npx hardhat --network heco_testnet compile
+
+npx hardhat --network heco_testnet run scripts/deploy/003_MetaWorld.js
+npx hardhat --network heco_testnet run scripts/configuration/003_MetaWorld.js
+
+npx hardhat --network heco_testnet run scripts/deploy/005_MetaWorldCollocation.js
+
+```
+
 ### bsc test net deploy
 ```
 npx hardhat --network bsc_testnet compile
