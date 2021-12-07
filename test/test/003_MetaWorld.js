@@ -12,19 +12,18 @@ describe("MetaWorld V1", function () {
   let operator; // 合约后台操作方
   let minter;
   let addrs;
-  let withdrawSigner = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+  let name = "MetaWorld";
+  let symbol = "MW";
+  let withdrawSigner;
   let withdrawSingerPrivate='0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 
   beforeEach(async function () {
-    // Construction parameters
-    const params = [
-      withdrawSigner,
-    ];
 
     MetaWorld = await ethers.getContractFactory("MetaWorld");
     [owner, operator, minter, ...addrs] = await ethers.getSigners();
+    withdrawSigner = operator;
 
-    hardhatMetaWorld = await MetaWorld.deploy(withdrawSigner);
+    hardhatMetaWorld = await MetaWorld.deploy(name, symbol, withdrawSigner.address);
     await hardhatMetaWorld.deployed();
     await  hardhatMetaWorld.connect(owner).setOperator(operator.address);
 

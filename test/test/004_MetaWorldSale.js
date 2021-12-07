@@ -23,27 +23,24 @@ describe("MetaWorldSale V1", function () {
   let buyer;
   let platformRecipienter;
   let hardhatMetaWorld;
-  let oldMPNFT;
-  let usdt;
-  let ibox;
-  let invitationSigner;
   let withdrawSigner;
   let hardhatMetaWorldSale;
   let hardhatUSDT;
   let hardhatWBTC;
-
+  let name = "MetaWorld";
+  let symbol = "MW";
   let mintAmount = "100";
 
   beforeEach(async function () {
     // Get the ContractFactory and Signers here.
     [owner, operator, minter, buyer, platformRecipienter, ...addrs] = await ethers.getSigners();
 
-    invitationSigner = ibox = withdrawSigner = oldMPNFT = usdt = operator;
+    withdrawSigner = operator;
 
     // ---------------------------------------------------------------
     //  deploy the MtetaWorld nft;
     let MetaWorld = await ethers.getContractFactory("MetaWorld");
-    hardhatMetaWorld = await MetaWorld.deploy(withdrawSigner.address);
+    hardhatMetaWorld = await MetaWorld.deploy(name, symbol, withdrawSigner.address);
     await  hardhatMetaWorld.connect(owner).setOperator(operator.address);
 
     // ---------------------------------------------------------------

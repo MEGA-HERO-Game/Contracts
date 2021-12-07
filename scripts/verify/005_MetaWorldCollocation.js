@@ -5,37 +5,44 @@ async function sleep(ms) {
         }, ms)
     });
 }
-// heco_test
-let metaWorld = "0x431cF2d9cdb78C9324Ae72d3567a951577658e16";
-
-// bsc_test
-// let metaWorld = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
-
 
 async function main() {
-    const { get } = deployments;
-    const [ deployer ] = await ethers.getSigners();
 
-    console.log('deployer is ', deployer.address)
-
+    let paramsCommand = [];
+    if (typeof(process.env.VerifyArguments)=="undefined"){
+        console.error('the Verify Arguments arguments env in not set');
+        process.exit(1);
+    } else{
+        // Remove Spaces, quotes, etc
+        paramsCommand = process.env.VerifyArguments.replace(new RegExp(" ", 'g'),"").replace(new RegExp("'", 'g'),"").replace(new RegExp("\"", 'g'), "").split(",");
+        if(paramsCommand.length !== 2) {
+            console.error('the constructor arguments must 2 param');
+            process.exit(1);
+        }
+    }
+    const metaWorldCollocationAddress = paramsCommand[0];
     // Construction parameters
-    const params = [
-        metaWorld,
-        platformRecipient,
-        feeRatio,
+    const constructorArguments = [
+        paramsCommand[1], // MetaWorldAddress
     ];
 
-    const MetaWorldCollocation = await get('MetaWorldCollocation');
-    let contract = await ethers.getContractAt(MetaWorldCollocation.abi, MetaWorldCollocation.address, deployer);
+    console.log("VerifyArguments info is as follows:");
+    console.log("\tContract:", metaWorldCollocationAddress);
+    console.log("\tContract MetaWorldAddress:", constructorArguments[1]);
 
-    // check deployed
+    const [ deployer ] = await ethers.getSigners();
+    console.log('deployer is ', deployer.address)
+
+    // deployed check
+    const MetaWorldCollocation = await ethers.getContractFactory("contracts/MetaWorldCollocation.sol:MetaWorldCollocation");
+    const contract = new ethers.Contract(metaWorldCollocationAddress, MetaWorldCollocation.interface, ethers.provider);
     await contract.deployed();
     console.log('1. V1 MetaWorldCollocation has deployed at:', contract.address);
 
     // verify
     await run("verify:verify", {
         address: contract.address,
-        constructorArguments: params
+        constructorArguments: constructorArguments
     });
 
     console.log('2. V1 MetaWorldCollocation has verifyed');

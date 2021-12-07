@@ -7,35 +7,43 @@ async function sleep(ms) {
     });
 }
 
-// heco_test
-let metaWorld = "0x431cF2d9cdb78C9324Ae72d3567a951577658e16";
-
-// bsc_test
-// let metaWorld = "0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2";
-
 async function main() {
+    let paramsCommand = [];
+
+    if (typeof(process.env.ConstructorArguments)=="undefined"){
+        console.error('the constructor arguments env in not set');
+        process.exit(1);
+    } else{
+        // Remove Spaces, quotes, etc
+        paramsCommand = process.env.ConstructorArguments.replace(new RegExp(" ", 'g'),"").replace(new RegExp("'", 'g'),"").replace(new RegExp("\"", 'g'), "").split(",");
+        if(paramsCommand.length !== 1) {
+            console.error('the constructor arguments must 3 parm');
+            process.exit(1);
+        }
+    }
+    // Construction parameters
+    const constructorArguments = [
+        paramsCommand[0], // MetaWorldAddress
+    ];
+
+    console.log("constructorArguments info is as follows:");
+    console.log("\tContract MetaWorldAddress:", constructorArguments[0]);
+
+
     const { deploy } = deployments;
     const [ deployer ] = await ethers.getSigners();
-
     console.log('deployer is ', deployer.address)
-
-    // Construction parameters
-    const params = [
-        metaWorld,
-    ];
 
     // deploy
     const contract = await deploy('MetaWorldCollocation', {
        from: deployer.address,
-       args: params,
+       args: constructorArguments,
         log: true,
     }).then(s => ethers.getContractAt(s.abi, s.address, deployer));
-
     console.log('1. V1 MetaWorldCollocation has deployed at:', contract.address);
-
     console.log('    wait MetaWorldCollocation deployed, it will token one minute or more，Please be patient ');
-
     await contract.deployed();
+    console.log('2. V1 MetaWorldCollocation has deployed');
 
     // let waitTime = 30; // 30 s wait scan indexed
     // for (var i = 0; i< waitTime; i++){
@@ -48,7 +56,7 @@ async function main() {
     // // verify
     // await run("verify:verify", {
     //     address: contract.address,
-    //     constructorArguments: params
+    //     constructorArguments: constructorArguments
     // });
     //
     // console.log('2. V1 MetaWorldCollocation has verifyed');

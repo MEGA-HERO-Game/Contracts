@@ -96,7 +96,7 @@ contract MetaWorld is ERC721URIStorage, Ownable {
         _;
     }
 
-    constructor(address _withdrawSigner) ERC721("Meta-World", "MH") {
+    constructor(string memory _name, string memory _symbol, address _withdrawSigner) ERC721(_name, _symbol) {
         withdrawSigner = _withdrawSigner;
     }
 
@@ -110,7 +110,7 @@ contract MetaWorld is ERC721URIStorage, Ownable {
         }
     }
 
-    function withdraw(address _user, uint256[] calldata _ids, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock _onlyOperator {
+    function withdraw(address _user, uint256[] calldata _ids, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
 
         require(_nonce == nonce[_user], "Err: nonce error");
         bytes32 _h = keccak256(abi.encodePacked(_user, _ids, _nonce));

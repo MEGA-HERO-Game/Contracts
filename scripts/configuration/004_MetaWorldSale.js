@@ -6,38 +6,46 @@ async function sleep(ms) {
         }, ms)
     });
 }
-// heco testnet
-// const metaWorldAddress = "0xf641842C9e753177CBAcFf8DfB2cC90F25324873"
-// let usdt = "0xE65673Ce68C0caaBEF36e5301c7A7654E630a2C6";
-
-// bsc testnet
-const metaWorldSaleAddress = "0x49f4Bab1F968a959FC201c047f632F7ADbedc9E9"
-let usdt = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
-
 
 async function main() {
-    const { get } = deployments;
+    let paramsCommand = [];
+    if (typeof(process.env.ConfigurationArguments)=="undefined"){
+        console.error('the Configuration Argumnet env in not set');
+        process.exit(1);
+    } else{
+        // Remove Spaces, quotes, etc
+        paramsCommand = process.env.ConfigurationArguments.replace(new RegExp(" ", 'g'),"").replace(new RegExp("'", 'g'),"").replace(new RegExp("\"", 'g'), "").split(",");
+        if(paramsCommand.length !== 2) {
+            console.error('the Configuration Argumnet must 2 argument');
+            process.exit(1);
+        }
+    }
+    let metaWorldSaleAddress = paramsCommand[0];
+    let usdtAddress = paramsCommand[1];
+
+    console.log("ConfigurationArgumnet info is as follows:");
+    console.log("\tmetaWorldSaleAddress:", metaWorldSaleAddress);
+    console.log("\toperatorAddress:", usdtAddress);
+
+
     const [ deployer ] = await ethers.getSigners();
-
-
     console.log('deployer is ', deployer.address)
 
     // deployed check
     const MetaWorldSale = await ethers.getContractFactory("contracts/MetaWorldSale.sol:MetaWorldSale");
     const contract = new ethers.Contract(metaWorldSaleAddress, MetaWorldSale.interface, ethers.provider);
-
+    await contract.deployed();
     console.log('1. V1 MetaWorldSale has deployed at:', contract.address);
 
     // check and set the withdraw limit
     let currencyUsdt = await contract.getPaymentCurrencyById(2);
-    if (currencyUsdt.currency != usdt ) {
+    if (currencyUsdt.currency !== usdtAddress ) {
         console.log('   V1 MetaWorldSale currency is not set');
-        await  contract.connect(deployer).addPaymentCurrency(usdt);
-        console.log('   V1 MetaWorldSale currency set to :', usdt);
+        await  contract.connect(deployer).addPaymentCurrency(usdtAddress);
+        console.log('   V1 MetaWorldSale currency set to :', usdtAddress);
     } else {
-        console.log('   V1 MetaWorldSale currency is :', usdt);
+        console.log('   V1 MetaWorldSale currency is :', usdtAddress);
     }
-
 
 }
 
