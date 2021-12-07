@@ -8,6 +8,10 @@ async function sleep(ms) {
   });
 }
 
+let name = "MetaWorld";
+let symbol = "MW";
+let withdrawSigner = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
+
 const func = async ({ getNamedAccounts, deployments, network }) => {
   const { AddressZero } = ethers.constants;
   const { deploy } = deployments;
@@ -17,9 +21,10 @@ const func = async ({ getNamedAccounts, deployments, network }) => {
 
   const options = { from: deployer };
 
-  let withdrawSigner = "0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7";
   // Construction parameters
   const params = [
+    name,
+    symbol,
     withdrawSigner,
   ];
 
