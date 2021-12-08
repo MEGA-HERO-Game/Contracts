@@ -43,38 +43,21 @@ env VerifyArguments="0x9f6320c12d2Ae46122e5982089b8Fd6Ce6bd0f86,MetaWorld,MW,0xC
 use the configuration script and configuration arguments env configuration the contract
 such as use this command configuration the meta world contract
 ```bash
-env ConfigurationArguments="<metaWorld contract address>,<operatorAddress>" npx hardhat --network <network> run scripts/configuration/003_MetaWorld.js
+env ConfigurationArguments="<metaWorld contract address>,<operatorAddress>,<OwnerAddress>" npx hardhat --network <network> run scripts/configuration/003_MetaWorld.js
 ```
 such as use the heco network verify the meta world contract
 ```bash
-env ConfigurationArguments="0x9f6320c12d2Ae46122e5982089b8Fd6Ce6bd0f86,0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7" npx hardhat --network heco run scripts/configuration/003_MetaWorld.js
+env ConfigurationArguments="0x9f6320c12d2Ae46122e5982089b8Fd6Ce6bd0f86,0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7,0xC99F1314b093fB08514F2Fb8b213A2C4a537Fdf7" npx hardhat --network heco run scripts/configuration/003_MetaWorld.js
 ```
 
-## rinkeby testnet
-### deploy the contract
-npx hardhat --network heco_testnet deploy
-### verify the contract
-npx hardhat verify --network heco_testnet <contract address>
+## Contract Deploy Detail
+### MegaHero Heco MainNet Deploy
+```bash
+# ConstructorArguments="<name>,<symbol>,<withdrawSigner>"
+env ConstructorArguments="MegaHero,MH,0x9Dfb975579e4D004eFe2df96F6552BB570F662f8" npx hardhat --network heco run scripts/deploy/003_MetaWorld.js
+# VerifyArguments="<metaWorld contract address>,<name>,<symbol>,<withdrawSigner>"
+env VerifyArguments="0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2,MegaHero,MH,0x9Dfb975579e4D004eFe2df96F6552BB570F662f8" npx hardhat --network heco run scripts/verify/003_MetaWorld.js
+# ConfigurationArguments="<metaWorld contract address>,,<operatorAddress>,<OwnerAddress>"
+env ConfigurationArguments="0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2,0x9AB363AEE708075b0E19Bf0C80740B68AC493C4B,0xac3b316bb782cb4587A7FD2522e0161E702BA579" npx hardhat --network heco run scripts/configuration/003_MetaWorld.js
 
-## Contract 
-### heco test net deploy
 ```
-npx hardhat --network heco_testnet compile
-npx hardhat --network heco_testnet run scripts/deploy/003_MetaWorld.js
-npx hardhat --network heco_testnet run scripts/configuration/003_MetaWorld.js
-npx hardhat --network heco_testnet run scripts/deploy/005_MetaWorldCollocation.js
-```
-### bsc test net deploy
-```
-npx hardhat --network bsc_testnet compile
-
-npx hardhat --network bsc_testnet run scripts/deploy/003_MetaWorld.js
-npx hardhat --network bsc_testnet run scripts/verify/003_MetaWorld.js
-npx hardhat --network bsc_testnet run scripts/configuration/003_MetaWorld.js
-
-npx hardhat --network bsc_testnet run scripts/deploy/004_MetaWorldSale.js
-npx hardhat --network bsc_testnet run scripts/verify/004_MetaWorldSale.js
-npx hardhat --network bsc_testnet run scripts/configuration/004_MetaWorldSale.js
-```
-## TODO:
-
