@@ -57,7 +57,7 @@ env ConfigurationArguments="0x9f6320c12d2Ae46122e5982089b8Fd6Ce6bd0f86,0xC99F131
 env ConstructorArguments="MegaHero,MH,0x9Dfb975579e4D004eFe2df96F6552BB570F662f8" npx hardhat --network heco run scripts/deploy/003_MetaWorld.js
 # VerifyArguments="<metaWorld contract address>,<name>,<symbol>,<withdrawSigner>"
 env VerifyArguments="0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2,MegaHero,MH,0x9Dfb975579e4D004eFe2df96F6552BB570F662f8" npx hardhat --network heco run scripts/verify/003_MetaWorld.js
-# ConfigurationArguments="<metaWorld contract address>,,<operatorAddress>,<OwnerAddress>"
+# ConfigurationArguments="<metaWorld contract address>,<operatorAddress>,<OwnerAddress>"
 env ConfigurationArguments="0xB71c4a9c6Bb7ae2379A20437596bec24A35931D2,0x9AB363AEE708075b0E19Bf0C80740B68AC493C4B,0xac3b316bb782cb4587A7FD2522e0161E702BA579" npx hardhat --network heco run scripts/configuration/003_MetaWorld.js
 
 ```
