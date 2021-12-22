@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8;
-import "@openzeppelin/contracts@4.3.0/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts@4.3.0/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @dev ERC721 token with storage based token URI management.
@@ -65,11 +65,26 @@ abstract contract ERC721URIStorage is ERC721Enumerable {
 }
 
 
-contract MP is ERC721URIStorage, Ownable {
+contract MetaWorld is ERC721URIStorage, Ownable {
 
     string private baseURI;
 
     address public operator;
+
+    uint private unlocked = 1;
+
+    address public withdrawSigner;
+
+    mapping(address => uint256) public nonce;
+
+    event Withdraw(address _user, uint256 _nonce, uint256[] _mpIds);
+
+    modifier _lock() {
+        require(unlocked == 1, 'Err: LOCKED');
+        unlocked = 0;
+        _;
+        unlocked = 1;
+    }
 
     modifier _onlyOperator() {
         require(operator == _msgSender(), "Operator: caller is not the operator");
@@ -79,11 +94,44 @@ contract MP is ERC721URIStorage, Ownable {
     modifier _onlyOperatorOrOwner() {
         require(operator == _msgSender() || owner() == _msgSender(), "Operator: caller is not the operator or owner");
         _;
-    }    
-
-    constructor() ERC721("MPNFT", "MP") {
     }
 
+    constructor(string memory _name, string memory _symbol, address _withdrawSigner) ERC721(_name, _symbol) {
+        withdrawSigner = _withdrawSigner;
+    }
+
+    function mint(address _to, uint256 _tokenId) external onlyOwner{
+        _mint(_to, _tokenId);
+    }
+
+    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator {
+        for(uint256 i = 0; i < _ids.length; i++){
+            _mint(_to, _ids[i]);
+        }
+    }
+
+    function withdraw(address _user, uint256[] calldata _ids, uint256 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external _lock {
+
+        require(_nonce == nonce[_user], "Err: nonce error");
+        bytes32 _h = keccak256(abi.encodePacked(_user, _ids, _nonce));
+        require(ecrecover(_h,_v,_r,_s) == withdrawSigner, "Err: Sign Error");
+
+        nonce[_user]++;
+        for(uint256 i = 0; i < _ids.length; i++){
+            _mint(_user, _ids[i]);
+        }
+
+        emit Withdraw(_user, _nonce, _ids);
+    }
+
+    function burn(uint256 _tokenId) external {
+        require(_isApprovedOrOwner(msg.sender, _tokenId), "caller is not owner nor approved");
+        _burn(_tokenId);
+    }
+
+    function setWithdrawSigner(address _signer) public onlyOwner {
+        withdrawSigner = _signer;
+    }
 
     function setBaseUri(string memory _baseURIArg) external onlyOwner {
         baseURI = _baseURIArg;
@@ -95,21 +143,6 @@ contract MP is ERC721URIStorage, Ownable {
 
     function setTokenURI(uint256 tokenId, string memory _tokenURI) external _onlyOperatorOrOwner {
         _setTokenURI(tokenId, _tokenURI);
-    }
-
-    function operatorMint(address _to, uint256[] memory _ids) external _onlyOperator {
-        for(uint256 i = 0; i < _ids.length; i++){
-            _mint(_to, _ids[i]);
-        }
-    }
-
-    function mint(address _to, uint256 _tokenId) external onlyOwner{
-        _mint(_to, _tokenId);
-    }
-
-    function burn(uint256 _tokenId) external {
-        require(msg.sender == ERC721.ownerOf(_tokenId), "Err: transfer caller is not owner");
-        _burn(_tokenId);
     }
 
     function _setBaseURI(string memory baseURI_) internal virtual {
